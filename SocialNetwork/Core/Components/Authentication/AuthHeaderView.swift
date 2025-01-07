@@ -1,10 +1,3 @@
-//
-//  AuthHeaderView.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 23/12/22.
-//
-
 import SwiftUI
 
 struct AuthHeaderView: View {

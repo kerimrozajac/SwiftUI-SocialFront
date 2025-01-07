@@ -1,10 +1,3 @@
-//
-//  RegistrationView.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 23/12/22.
-//
-
 import SwiftUI
 
 struct RegistrationView: View {
@@ -54,11 +47,7 @@ struct RegistrationView: View {
             .padding(32)
             
             Button {
-                print("Sign Up")
-                viewModel.register(withEmail: email,
-                                   password: password,
-                                   fullname: fullname,
-                                   username: username)
+                viewModel.register(withEmail: email, password: password, fullname: fullname, username: username)
             } label: {
                 Text("Sign Up")
                     .font(.headline)
@@ -69,6 +58,7 @@ struct RegistrationView: View {
                     .padding()
             }
             .shadow(color: .gray.opacity(0.5), radius: 10, x: 0, y: 0)
+
             
             
             Spacer()

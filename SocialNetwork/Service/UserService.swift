@@ -1,39 +1,68 @@
-//
-//  UserService.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 24/12/22.
-//
-
-import Firebase
+import Foundation
 
 struct UserService {
     
-    func fetchUser(withUid uid: String, completion: @escaping(User) -> Void) {
-        Firestore.firestore().collection("users")
-            .document(uid)
-            .getDocument { snapshot, _ in
-                guard let snapshot = snapshot else { return }
-                var user: User
-                
-                do {
-                    user = try snapshot.data(as: User.self)
-                } catch {
-                    print ("Error fetchUser: \(error)")
-                    return
-                }
-                
-                completion(user)
+    // Base URL of your Django backend
+    private let baseURL = "https://your-django-backend.com/api/users/"
+    
+    /// Fetch a user by their UID
+    func fetchUser(withUid uid: String, completion: @escaping (Result<User, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)\(uid)/") else {
+            completion(.failure(UserServiceError.invalidURL))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
             }
+            
+            guard let data = data else {
+                completion(.failure(UserServiceError.noData))
+                return
+            }
+            
+            do {
+                let user = try JSONDecoder().decode(User.self, from: data)
+                completion(.success(user))
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
     }
     
-    func fetchUsers(completion: @escaping([User]) -> Void) { 
-        Firestore.firestore().collection("users")
-            .getDocuments { snapshot, _ in
-                guard let documents = snapshot?.documents else { return }
-                let users = documents.compactMap({ try? $0.data(as: User.self)})
-                
-                completion(users)
+    /// Fetch all users (with optional pagination support)
+    func fetchUsers(completion: @escaping (Result<[User], Error>) -> Void) {
+        guard let url = URL(string: baseURL) else {
+            completion(.failure(UserServiceError.invalidURL))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
             }
+            
+            guard let data = data else {
+                completion(.failure(UserServiceError.noData))
+                return
+            }
+            
+            do {
+                let users = try JSONDecoder().decode([User].self, from: data)
+                completion(.success(users))
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
     }
+}
+
+// MARK: - Errors
+
+enum UserServiceError: Error {
+    case invalidURL
+    case noData
 }

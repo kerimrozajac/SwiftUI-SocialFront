@@ -1,20 +1,14 @@
-//
-//  Post.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 25/12/22.
-//
-
-import FirebaseFirestoreSwift
-import Firebase
+import Foundation
 
 struct Post: Identifiable, Decodable {
-    @DocumentID var id: String?
-    let caption: String
-    let timestamp: Timestamp
-    let uid: String
-    var likes: Int
-    
-    var user: User?
-    var didLike: Bool? = false
+    let id: UUID          // Corresponds to `public_id`
+    let title: String     // Corresponds to `title` in `Post`
+    let body: String      // Corresponds to `body` in `Post`
+    let timestamp: Date   // Corresponds to `created` in `AbstractModel`
+    let edited: Bool      // Corresponds to `edited` in `Post`
+    let author: User?     // Links to the `author` of the post (Foreign Key to `CustomUser`)
+
+    var isEdited: Bool {
+        return edited
+    }
 }

@@ -13,6 +13,8 @@
 		4348DDE72D1FC62600A12DBE /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 4348DDE62D1FC62600A12DBE /* FirebaseAppCheck */; };
 		4348DDE92D1FC62600A12DBE /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 4348DDE82D1FC62600A12DBE /* FirebaseAppDistribution-Beta */; };
 		4348DDED2D1FC80000A12DBE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4348DDEC2D1FC80000A12DBE /* GoogleService-Info.plist */; };
+		436E85E82D2CB58D0071D78E /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436E85E72D2CB5860071D78E /* Comment.swift */; };
+		436E85EA2D2CB5A20071D78E /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436E85E92D2CB59D0071D78E /* Device.swift */; };
 		5A1D1F9C296C9914004ABBDE /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1D1F9B296C9914004ABBDE /* SearchBar.swift */; };
 		941CCE31281121ED00B5F690 /* SocialNetworkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941CCE30281121ED00B5F690 /* SocialNetworkApp.swift */; };
 		941CCE33281121ED00B5F690 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941CCE32281121ED00B5F690 /* ContentView.swift */; };
@@ -62,6 +64,8 @@
 /* Begin PBXFileReference section */
 		39A563B7D32D5446D0DCD0DC /* Pods_TwitterCloneSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TwitterCloneSwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4348DDEC2D1FC80000A12DBE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		436E85E72D2CB5860071D78E /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		436E85E92D2CB59D0071D78E /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		5A1D1F9B296C9914004ABBDE /* SearchBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		941CCE2D281121ED00B5F690 /* SocialNetwork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SocialNetwork.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		941CCE30281121ED00B5F690 /* SocialNetworkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialNetworkApp.swift; sourceTree = "<group>"; };
@@ -207,6 +211,8 @@
 		941CCE40281129BF00B5F690 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				436E85E92D2CB59D0071D78E /* Device.swift */,
+				436E85E72D2CB5860071D78E /* Comment.swift */,
 				945A85B2281578C800FFF6EA /* User.swift */,
 				949E3BFD2816783E00C8FD38 /* Post.swift */,
 			);
@@ -550,6 +556,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				436E85EA2D2CB5A20071D78E /* Device.swift in Sources */,
 				5A1D1F9C296C9914004ABBDE /* SearchBar.swift in Sources */,
 				945A85B1281576F800FFF6EA /* UserService.swift in Sources */,
 				941CCE5728116E1000B5F690 /* MessagesView.swift in Sources */,
@@ -585,6 +592,7 @@
 				941CCE4D28116A5C00B5F690 /* MainTabView.swift in Sources */,
 				949E3BFE2816783E00C8FD38 /* Post.swift in Sources */,
 				941CCE5528116DFB00B5F690 /* NotificationsView.swift in Sources */,
+				436E85E82D2CB58D0071D78E /* Comment.swift in Sources */,
 				941CCE6E281277DF00B5F690 /* UserStatsView.swift in Sources */,
 				945C4BF52813E4A600BA3309 /* RegistrationView.swift in Sources */,
 			);

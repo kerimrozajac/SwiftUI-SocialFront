@@ -1,126 +1,151 @@
-//
-//  PostService.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 25/12/22.
-//
-
-import Firebase
+import Foundation
 
 struct PostService {
- 
-    func uploadPost(caption: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        let data = ["uid": uid,
-                    "caption": caption,
-                    "likes": 0,
-                    "timestamp": Timestamp(date: Date())] as [String: Any]
-        
-        Firestore.firestore()
-            .collection("posts")
-            .document()
-            .setData(data) { error in
-                if let error = error {
-                    print("DEBUG: Failed to upload post with error .. \(error.localizedDescription)")
-                    completion(false)
-                    return
-                }
-                print("DEBUG: Did upload post..")
-                
-                completion(true)
-            }
-    }
     
-    func fetchPosts(completion: @escaping([Post]) -> Void) {
-        Firestore.firestore().collection("posts")
-            .order(by: "timestamp", descending: true)
-            .getDocuments { snapshot, _ in
-            guard let documents = snapshot?.documents else { return }
-            
-            let posts = documents.compactMap({ try? $0.data(as: Post.self)})
-            completion(posts)
+    private let baseURL = "http://your-django-backend.com/api" // Replace with your backend URL
+    
+    func uploadPost(caption: String, completion: @escaping (Bool) -> Void) {
+        guard let url = URL(string: "\(baseURL)/posts/") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(getUserToken())", forHTTPHeaderField: "Authorization")
+        
+        let data: [String: Any] = [
+            "caption": caption
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: data, options: [])
+        } catch {
+            print("Failed to serialize post data: \(error)")
+            completion(false)
+            return
         }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Failed to upload post: \(error)")
+                completion(false)
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 201 else {
+                print("Failed to upload post: Invalid response")
+                completion(false)
+                return
+            }
+            
+            completion(true)
+        }.resume()
     }
     
-    func fetchPosts(forUid uid: String, completion: @escaping([Post]) -> Void) {
-        Firestore.firestore().collection("posts")
-            .whereField("uid", isEqualTo: uid)
-            .getDocuments { snapshot, _ in
-                guard let documents = snapshot?.documents else { return }
-                
-                let posts = documents.compactMap({ try? $0.data(as: Post.self)}) as! [Post]
-                completion(posts.sorted(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() }))
+    func fetchPosts(completion: @escaping ([Post]) -> Void) {
+        guard let url = URL(string: "\(baseURL)/posts/") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(getUserToken())", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Failed to fetch posts: \(error)")
+                completion([])
+                return
             }
-    }
-}
-
-extension PostService {
-    
-    func likePost(_ post: Post, completion: @escaping() -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard let postId = post.id else { return }
-        
-        let userLikesRef = Firestore.firestore().collection("users").document(uid).collection("user-likes")
-        
-        Firestore.firestore().collection("posts").document(postId)
-            .updateData(["likes": post.likes + 1]) { _ in
-                userLikesRef.document(postId).setData([:]) { _ in
-                    completion()
-                }
+            
+            guard let data = data else {
+                print("No data returned")
+                completion([])
+                return
             }
-    }
-    
-    func unlikePost(_ post: Post, completion: @escaping() -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard let postId = post.id else { return }
-        
-        let userLikesRef = Firestore.firestore().collection("users").document(uid).collection("user-likes")
-        
-        Firestore.firestore().collection("posts").document(postId)
-            .updateData(["likes": post.likes]) { _ in
-                userLikesRef.document(postId).delete() { _ in
-                    completion()
-                }
+            
+            do {
+                let posts = try JSONDecoder().decode([Post].self, from: data)
+                completion(posts)
+            } catch {
+                print("Failed to decode posts: \(error)")
+                completion([])
             }
+        }.resume()
     }
     
-    func checkIsUserLikedPost(_ post: Post, completion: @escaping(Bool) -> Void) {
-        print("PostService__checkIsUserLikedPost")
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard let postId = post.id else { return }
+    func likePost(postId: String, completion: @escaping () -> Void) {
+        guard let url = URL(string: "\(baseURL)/posts/\(postId)/like/") else { return }
         
-        Firestore.firestore().collection("users")
-            .document(uid)
-            .collection("user-likes")
-            .document(postId).getDocument { snapshot, _ in
-                guard let snapshot = snapshot else { return }
-                print("PostService__checkIsUserLikedPost is liked : \(snapshot.exists)")
-                completion(snapshot.exists)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(getUserToken())", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            if let error = error {
+                print("Failed to like post: \(error)")
+                return
             }
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print("Failed to like post: Invalid response")
+                return
+            }
+            
+            completion()
+        }.resume()
     }
     
-    func fetchLikedPosts(forUid uid: String, completion: @escaping([Post]) -> Void) {
-        var posts = [Post]()
-        print("fetchLikedPosts")
-        Firestore.firestore().collection("users")
-            .document(uid)
-            .collection("user-likes")
-            .getDocuments { snapshot, _ in
-                guard let documents = snapshot?.documents else { return }
-                
-                documents.forEach { doc in
-                    let postID = doc.documentID
-                    
-                    Firestore.firestore().collection("posts")
-                        .document(postID)
-                        .getDocument { snapshot, _ in
-                            guard let post = try? snapshot?.data(as: Post.self) else { return }
-                            posts.append(post)
-                            
-                            completion(posts)
-                        }
-                }
+    func unlikePost(postId: String, completion: @escaping () -> Void) {
+        guard let url = URL(string: "\(baseURL)/posts/\(postId)/unlike/") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(getUserToken())", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            if let error = error {
+                print("Failed to unlike post: \(error)")
+                return
             }
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print("Failed to unlike post: Invalid response")
+                return
+            }
+            
+            completion()
+        }.resume()
+    }
+    
+    func checkIsUserLikedPost(postId: String, completion: @escaping (Bool) -> Void) {
+        guard let url = URL(string: "\(baseURL)/posts/\(postId)/is-liked/") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(getUserToken())", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Failed to check if user liked post: \(error)")
+                completion(false)
+                return
+            }
+            
+            guard let data = data else {
+                completion(false)
+                return
+            }
+            
+            do {
+                let response = try JSONDecoder().decode([String: Bool].self, from: data)
+                completion(response["liked"] ?? false)
+            } catch {
+                print("Failed to decode liked status: \(error)")
+                completion(false)
+            }
+        }.resume()
+    }
+    
+    private func getUserToken() -> String {
+        // Replace with your logic to retrieve the user's JWT or session token
+        return "user-token"
     }
 }

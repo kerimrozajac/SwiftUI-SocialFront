@@ -1,10 +1,3 @@
-//
-//  ProfilePhotoSelectorView.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 23/12/22.
-//
-
 import SwiftUI
 
 struct ProfilePhotoSelectorView: View {
@@ -15,30 +8,32 @@ struct ProfilePhotoSelectorView: View {
     
     var body: some View {
         VStack {
+            // Header View
             AuthHeaderView(title1: "Setup account", title2: "Add a profile photo")
             
+            // Profile Image Picker Button
             Button {
-                print("Pick image here..")
                 showImagePicker.toggle()
             } label: {
                 if let profileImage = profileImage {
                     profileImage
                         .resizable()
+                        .modifier(ProfileImageModifier())
                 } else {
                     Image("addProfile")
                         .resizable()
                         .renderingMode(.template)
                         .foregroundColor(Color.themeColor)
-                        
+                        .modifier(ProfileImageModifier())
                 }
-            }.sheet(isPresented: $showImagePicker, onDismiss: loadImage) {
+            }
+            .sheet(isPresented: $showImagePicker, onDismiss: loadImage) {
                 ImagePicker(selectedImage: $selectedImage)
             }
-            .modifier(ProfileImageModifier())
             
+            // Continue Button (Shown if an image is selected)
             if let selectedImage = selectedImage {
                 Button {
-                    print("DEBUD: Finish registering user..")
                     viewModel.uploadProfileImage(selectedImage)
                 } label: {
                     Text("Continue")
@@ -58,6 +53,7 @@ struct ProfilePhotoSelectorView: View {
         .navigationBarHidden(true)
     }
     
+    // Load the selected image and convert it to SwiftUI's Image
     func loadImage() {
         guard let selectedImage = selectedImage else { return }
         profileImage = Image(uiImage: selectedImage)
@@ -81,5 +77,6 @@ private struct ProfileImageModifier: ViewModifier {
 struct ProfilePhotoSelectorView_Previews: PreviewProvider {
     static var previews: some View {
         ProfilePhotoSelectorView()
+            .environmentObject(AuthViewModel()) // Provide mock view model for preview
     }
 }

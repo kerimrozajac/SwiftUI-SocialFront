@@ -1,22 +1,17 @@
-//
-//  LoginView.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 22/12/22.
-//
-
 import SwiftUI
 
 struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
-    @EnvironmentObject var viewModel: AuthViewModel
+    @EnvironmentObject var viewModel: AuthViewModel // Use the updated Django-compatible AuthViewModel
+    @State private var loginError: String? // For error handling and displaying messages
     
     var body: some View {
         VStack {
-           //header here
+            // Header
             AuthHeaderView(title1: "Hello,", title2: "Welcome back")
             
+            // Input fields
             VStack(spacing: 40) {
                 CustomInputField(imageName: "envelope",
                                  placeholderText: "Email",
@@ -24,7 +19,6 @@ struct LoginView: View {
                                  keyboardType: .emailAddress,
                                  textContentType: .emailAddress,
                                  text: $email)
-                
                 
                 CustomInputField(imageName: "lock",
                                  placeholderText: "Password",
@@ -37,11 +31,12 @@ struct LoginView: View {
             .padding(.horizontal, 32)
             .padding(.top, 44)
             
+            // Forgot password link
             HStack {
                 Spacer()
                 
                 NavigationLink {
-                    Text("Reset View")
+                    Text("Reset Password View") // You can replace this with your ResetPasswordView
                 } label: {
                     Text("Forgot Password?")
                         .font(.caption)
@@ -52,9 +47,15 @@ struct LoginView: View {
                 }
             }
             
+            // Sign In Button
             Button {
-                print("Sign In")
-                viewModel.login(withEmail: email, password: password)
+                viewModel.login(withEmail: email, password: password) { success, error in
+                    if let error = error {
+                        loginError = error.localizedDescription
+                    } else if success {
+                        print("DEBUG: Login successful!")
+                    }
+                }
             } label: {
                 Text("Sign In")
                     .font(.headline)
@@ -65,10 +66,21 @@ struct LoginView: View {
                     .padding()
             }
             .shadow(color: .gray.opacity(0.5), radius: 10, x: 0, y: 0)
+
+            
+            // Display error message if login fails
+            if let loginError = loginError {
+                Text(loginError)
+                    .font(.footnote)
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
             
             Spacer()
             
-            NavigationLink  {
+            // Sign Up link
+            NavigationLink {
                 RegistrationView()
                     .navigationBarHidden(true)
             } label: {
@@ -83,16 +95,14 @@ struct LoginView: View {
             }
             .padding(.bottom, 32)
             .foregroundColor(Color.themeColor)
-
         }
         .ignoresSafeArea()
-        
-         
     }
 }
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .environmentObject(AuthViewModel()) // Ensure this is provided
     }
 }
