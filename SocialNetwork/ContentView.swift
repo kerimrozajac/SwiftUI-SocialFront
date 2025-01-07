@@ -1,22 +1,13 @@
-//
-//  ContentView.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 21/12/22.
-//
-
 import SwiftUI
 import Kingfisher
-import Firebase
-import FirebaseAnalytics
 
 struct ContentView: View {
     @State private var showMenu = true
     @EnvironmentObject var viewModel: AuthViewModel
-    
+
     var body: some View {
         Group {
-            if (viewModel.userSession == nil) {
+            if viewModel.userSession == nil {
                 LoginView()
             } else {
                 mainInterfaceView
@@ -31,26 +22,26 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-
 extension ContentView {
-    
+
     var mainInterfaceView: some View {
         ZStack(alignment: .topLeading) {
             MainTabView()
                 .navigationBarHidden(showMenu)
-            
+
             if showMenu {
                 ZStack {
                     Color(.black)
                         .opacity(0.25)
-                }.onTapGesture {
+                }
+                .onTapGesture {
                     withAnimation(.easeInOut) {
                         showMenu = false
                     }
                 }
                 .ignoresSafeArea()
             }
-            
+
             SideMenuView()
                 .frame(width: 300)
                 .offset(x: showMenu ? 0 : -300, y: 0)
@@ -76,8 +67,8 @@ extension ContentView {
             }
         }
         .onAppear {
+            // Hide the menu initially when the view appears
             showMenu = false
         }
     }
-    
 }

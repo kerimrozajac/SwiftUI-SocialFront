@@ -60,7 +60,8 @@ class AuthViewModel: ObservableObject {
                     // Save the token and user session (update as needed for your app)
                     DispatchQueue.main.async {
                         self?.userSession = token // Save token or other session details
-                        //self?.fetchUser() // Optionally fetch user data
+                        self?.fetchUser(withToken: token) // Fetch user data after successful login
+                        UserDefaults.standard.set(token, forKey: "userToken") // Persist token
                         completion(true, nil)
                     }
                 } else {
@@ -76,7 +77,6 @@ class AuthViewModel: ObservableObject {
         }.resume()
     }
 
-    
     // MARK: - Register
     func register(withEmail email: String, password: String, fullname: String, username: String) {
         guard let url = URL(string: "https://your-django-backend-url/api/register/") else { return }
@@ -119,6 +119,7 @@ class AuthViewModel: ObservableObject {
                     DispatchQueue.main.async {
                         self?.userSession = token
                         self?.didAuthenticateUser = true
+                        UserDefaults.standard.set(token, forKey: "userToken")
                     }
                 } else {
                     print("DEBUG: Invalid response data during registration")
@@ -129,12 +130,11 @@ class AuthViewModel: ObservableObject {
         }.resume()
     }
 
-    
     // MARK: - Logout
     func logout() {
         guard let token = userSession else { return }
         
-        guard let url = URL(string: "https://your-django-backend.com/api/logout/") else { return }
+        guard let url = URL(string: "https://your-django-backend-url/api/logout/") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -150,47 +150,9 @@ class AuthViewModel: ObservableObject {
         }.resume()
     }
     
-    // MARK: - Upload Profile Image
-    func uploadProfileImage(_ image: UIImage) {
-        guard let token = tempUserSession ?? userSession else { return }
-        guard let imageData = image.jpegData(compressionQuality: 0.5) else { return }
-        
-        guard let url = URL(string: "https://your-django-backend.com/api/upload-profile-image/") else { return }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"profile.jpg\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
-        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
-        
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            if let error = error {
-                print("DEBUG: Failed to upload profile image with error: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let data = data,
-                  let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                  let imageUrl = json["profileImageUrl"] as? String else { return }
-            
-            DispatchQueue.main.async {
-                self?.fetchUser(withToken: token)
-                print("DEBUG: Profile image uploaded successfully: \(imageUrl)")
-            }
-        }.resume()
-    }
-    
     // MARK: - Fetch User
     func fetchUser(withToken token: String) {
-        guard let url = URL(string: "https://your-django-backend.com/api/user/") else { return }
+        guard let url = URL(string: "https://your-django-backend-url/api/user/") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

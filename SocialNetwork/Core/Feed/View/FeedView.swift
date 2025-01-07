@@ -1,10 +1,3 @@
-//
-//  FeedView.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 21/12/22.
-//
-
 import SwiftUI
 
 struct FeedView: View {

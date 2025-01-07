@@ -21,9 +21,9 @@ class FeedViewModel: ObservableObject {
             self.posts = posts
             
             for index in 0 ..< posts.count {
-                let uid = posts[index].uid
+                let uid = posts[index].id
                 
-                self.userService.fetchUser(withUid: uid) { user in
+                self.userService.fetchUser(withUid: id) { user in
                     self.posts[index].user = user
                 }
             }
