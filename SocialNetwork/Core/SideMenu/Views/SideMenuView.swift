@@ -24,7 +24,7 @@ struct SideMenuView: View {
                         .frame(width: 48, height: 48)
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(user.fullname)
+                        Text(user.username)
                             .font(.headline)
                         
                         Text("@\(user.username)")

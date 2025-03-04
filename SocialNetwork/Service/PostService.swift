@@ -2,10 +2,10 @@ import Foundation
 
 struct PostService {
     
-    private let baseURL = "http://your-django-backend.com/api" // Replace with your backend URL
+    private let baseURL = "http://localhost:8000/api/v1/" // Replace with your backend URL
     
     func uploadPost(caption: String, completion: @escaping (Bool) -> Void) {
-        guard let url = URL(string: "\(baseURL)/posts/") else { return }
+        guard let url = URL(string: "\(baseURL)") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -40,9 +40,9 @@ struct PostService {
             completion(true)
         }.resume()
     }
-    
-    func fetchPosts(completion: @escaping ([Post]) -> Void) {
-        guard let url = URL(string: "\(baseURL)/posts/") else { return }
+
+    func fetchPosts(forUserId userId: UUID, completion: @escaping ([Post]) -> Void) {
+        guard let url = URL(string: "\(baseURL)/posts/\(userId)") else { return }  // Assuming userId is needed in the URL
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -70,9 +70,47 @@ struct PostService {
             }
         }.resume()
     }
+
+    
+    /*
+    func fetchLikedPosts(forUserId userId: UUID, completion: @escaping ([Post]) -> Void) {
+        guard let url = URL(string: "\(baseURL)/users/\(userId)/liked-posts/") else {
+            print("Invalid URL for fetching liked posts")
+            completion([])
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(getUserToken())", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Failed to fetch liked posts: \(error)")
+                completion([])
+                return
+            }
+
+            guard let data = data else {
+                print("No data received for liked posts")
+                completion([])
+                return
+            }
+
+            do {
+                let likedPosts = try JSONDecoder().decode([Post].self, from: data)
+                completion(likedPosts)
+            } catch {
+                print("Failed to decode liked posts: \(error)")
+                completion([])
+            }
+        }.resume()
+    }
+    */
+
     
     func likePost(postId: String, completion: @escaping () -> Void) {
-        guard let url = URL(string: "\(baseURL)/posts/\(postId)/like/") else { return }
+        guard let url = URL(string: "\(baseURL)/\(postId)/like/") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -94,7 +132,7 @@ struct PostService {
     }
     
     func unlikePost(postId: String, completion: @escaping () -> Void) {
-        guard let url = URL(string: "\(baseURL)/posts/\(postId)/unlike/") else { return }
+        guard let url = URL(string: "\(baseURL)/\(postId)/remove_like/") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -115,6 +153,7 @@ struct PostService {
         }.resume()
     }
     
+    /*
     func checkIsUserLikedPost(postId: String, completion: @escaping (Bool) -> Void) {
         guard let url = URL(string: "\(baseURL)/posts/\(postId)/is-liked/") else { return }
         
@@ -143,6 +182,7 @@ struct PostService {
             }
         }.resume()
     }
+     */
     
     private func getUserToken() -> String {
         // Replace with your logic to retrieve the user's JWT or session token

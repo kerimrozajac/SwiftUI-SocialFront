@@ -3,7 +3,7 @@ import Foundation
 struct UserService {
     
     // Base URL of your Django backend
-    private let baseURL = "https://your-django-backend.com/api/users/"
+    private let baseURL = "http://localhost:8000/api/v1/users/"
     
     /// Fetch a user by their UID
     func fetchUser(withUid uid: String, completion: @escaping (Result<User, Error>) -> Void) {

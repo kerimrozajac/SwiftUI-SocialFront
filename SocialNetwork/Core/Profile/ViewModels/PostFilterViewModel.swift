@@ -1,10 +1,3 @@
-//
-//  PostFilterViewModel.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 21/12/22.
-//
-
 import Foundation
 
 enum PostFilterViewModel: Int, CaseIterable {

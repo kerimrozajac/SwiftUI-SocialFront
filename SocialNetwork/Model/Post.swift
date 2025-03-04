@@ -6,7 +6,7 @@ struct Post: Identifiable, Decodable {
     let body: String      // Corresponds to `body` in `Post`
     let timestamp: Date   // Corresponds to `created` in `AbstractModel`
     let edited: Bool      // Corresponds to `edited` in `Post`
-    let author: User?     // Links to the `author` of the post (Foreign Key to `CustomUser`)
+    var author: User?     // Links to the `author` of the post (Foreign Key to `CustomUser`)
 
     var isEdited: Bool {
         return edited

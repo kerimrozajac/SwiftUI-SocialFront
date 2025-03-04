@@ -1,10 +1,3 @@
-    //
-    //  ProfileViewModel.swift
-    //  SocialNetwork
-    //
-    //  Created by Sergey Leschev on 25/12/22.
-    //
-
 import Foundation
 
 class ProfileViewModel: ObservableObject {
@@ -14,53 +7,72 @@ class ProfileViewModel: ObservableObject {
     private let userService = UserService()
     
     let user: User
+    private let loggedInUserId: String? // Logged-in user's ID
     
-    init(user: User) {
+    init(user: User, loggedInUserId: String?) {
         self.user = user
+        self.loggedInUserId = loggedInUserId
         self.fetchUserPosts()
-        self.fetchLikedPosts()
+        //self.fetchLikedPosts()
     }
     
     var actionButtonTitle: String {
-        return user.isCurrentUser ? "Edit Profile" : "Follow"
+        return isCurrentUser ? "Edit Profile" : "Follow"
     }
     
+    var isCurrentUser: Bool {
+        guard let loggedInUserId = loggedInUserId, let loggedInUserUUID = UUID(uuidString: loggedInUserId) else {
+            return false
+        }
+        return user.id == loggedInUserUUID
+    }
+
     func posts(forFilter filter: PostFilterViewModel) -> [Post] {
         switch filter {
-            case .posts:
-                return posts
-            case .replies:
-                return posts
-            case .likes:
-                return likedPosts
+        case .posts:
+            return posts  // Fixed: Changed from `post` to `posts`
+        case .replies:
+            return [] // Placeholder: Define how replies are fetched if needed
+        case .likes:
+            return likedPosts
         }
     }
-    
+
     func fetchUserPosts() {
-        guard let uid = user.id else { return }
-        service.fetchPosts(forUid: uid) { posts in
-            self.posts = posts
-            
-            for index in 0 ..< posts.count {
-                self.posts[index].user = self.user
-            }
-        }
-    }
-    
-    func fetchLikedPosts() {
-        guard let uid = user.id else { return }
+        // Assuming user.id is a non-optional UUID, you can directly use it
+        let userId = user.id
         
-        service.fetchLikedPosts(forUid: uid) { posts in
-            self.likedPosts = posts
-            
-            for index in 0 ..< posts.count {
-                let uid = posts[index].uid
-                
-                self.userService.fetchUser(withUid: uid) { user in
-                    self.likedPosts[index].user = user
+        service.fetchPosts(forUserId: userId) { fetchedPosts in
+            DispatchQueue.main.async {
+                self.posts = fetchedPosts.map { post in
+                    var mutablePost = post
+                    mutablePost.author = self.user // Assigning `author`
+                    return mutablePost
                 }
             }
         }
     }
-}
 
+
+    /*
+    func fetchLikedPosts() {
+        service.fetchLikedPosts(forUserId: user.id) { fetchedLikedPosts in
+            DispatchQueue.main.async {
+                self.likedPosts = fetchedLikedPosts
+                for index in 0..<fetchedLikedPosts.count {
+                    if let postAuthor = fetchedLikedPosts[index].author {
+                        self.likedPosts[index].author = postAuthor
+                    } else {
+                        let postId = fetchedLikedPosts[index].id
+                        self.userService.fetchUser(withId: postId.uuidString) { fetchedUser in
+                            DispatchQueue.main.async {
+                                self.likedPosts[index].author = fetchedUser
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    */
+}

@@ -17,7 +17,7 @@ struct PostRowView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if let user = self.viewModel.post.user {
+            if let user = self.viewModel.post.author {
                 HStack(alignment: .top, spacing: 12) {
                     KFImage(URL(string: user.avatarUrl))
                         .resizable()
@@ -28,7 +28,7 @@ struct PostRowView: View {
                     
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text(user.fullname)
+                            Text(user.username)
                                 .font(.subheadline).bold()
                             
                             Text("@\(user.username)")
@@ -40,7 +40,7 @@ struct PostRowView: View {
                                 .foregroundColor(.gray)
                         }
                         
-                        Text(self.viewModel.post.caption)
+                        Text(self.viewModel.post.title)
                             .font(.subheadline)
                             .multilineTextAlignment(.leading)
                     }

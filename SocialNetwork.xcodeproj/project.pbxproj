@@ -62,7 +62,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		39A563B7D32D5446D0DCD0DC /* Pods_TwitterCloneSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TwitterCloneSwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4348DDEC2D1FC80000A12DBE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		436E85E72D2CB5860071D78E /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		436E85E92D2CB59D0071D78E /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
@@ -130,20 +129,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13447740EA65FB33A46D56CE /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				39A563B7D32D5446D0DCD0DC /* Pods_TwitterCloneSwiftUI.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		941CCE24281121ED00B5F690 = {
 			isa = PBXGroup;
 			children = (
 				941CCE2F281121ED00B5F690 /* SocialNetwork */,
 				941CCE2E281121ED00B5F690 /* Products */,
-				13447740EA65FB33A46D56CE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
